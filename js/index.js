@@ -8,6 +8,7 @@ let dragElem;
 
 window.onload = function() {
   list.forEach((el, index) => createElement(el, index));
+  setCurrentListIndex(Array.from(listItemsWrap.children));
 };
 
 function createElement(itemToCreate, index) {
@@ -15,7 +16,6 @@ function createElement(itemToCreate, index) {
   const listItemInnersList = Object.keys(itemToCreate);
 
   listItem.classList.add("content_item");
-  listItem.id = `item_${index}`;
   listItem.setAttribute("draggable", true);
 
   listItemInnersList.forEach((el, index) => {
@@ -54,9 +54,14 @@ listItemsWrap.addEventListener(
   function(event) {
     event.preventDefault();
     const target = event.target;
-    isSetBefore(dragElem, target)
-      ? target.parentNode.insertBefore(dragElem, target)
-      : target.parentNode.insertBefore(dragElem, target.nextSibling);
+    if (isInDragZone(dragElem, target)) {
+      getItemId(dragElem.id) > getItemId(target.id)
+        ? target.parentNode.insertBefore(dragElem, target)
+        : target.parentNode.insertBefore(dragElem, target.nextSibling);
+      const parentChildren = Array.from(listItemsWrap.children);
+      sortCurrentDataList(parentChildren.map(el => getItemId(el.id)));
+      setCurrentListIndex(parentChildren);
+    }
   },
   false
 );
@@ -74,16 +79,20 @@ function getItemId(el) {
   return el.match(/\d/).map(Number)[0];
 }
 
-function isSetBefore(dragStart, dragEnd) {
-  let currentElem;
-  if (dragEnd.parentNode === dragStart.parentNode) {
-    for (
-      currentElem = dragStart.previousSibling;
-      currentElem;
-      currentElem = currentElem.previousSibling
-    ) {
-      return currentElem === dragEnd && true;
-    }
-  }
-  return false;
+function isInDragZone(dragStart, dragEnd) {
+  return dragEnd.parentNode === dragStart.parentNode;
+}
+
+function sortCurrentDataList(incomeRow) {
+  const currentList = [];
+  incomeRow.forEach(index => {
+    currentList.push(list[index]);
+  });
+  list = currentList;
+}
+
+function setCurrentListIndex(arr) {
+  arr.forEach((el, index) => {
+    el.id = `item_${index}`;
+  });
 }
