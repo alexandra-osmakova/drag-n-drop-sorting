@@ -40,8 +40,8 @@ h1 {
     position: relative;
     padding: 12px;
     background-color: #99dfff;
-    border: 1px solid #808080;
-    transition: all 0.4s ease;
+    border: 2px solid #808080;
+    transition: all 0.5s ease;
 }
 
 .content_item span:not(:last-of-type) {
@@ -52,14 +52,15 @@ h1 {
     margin-bottom: 8px;
 }
 
-.content_item:hover {
-    box-shadow: 0rem 0.375rem 0.4375rem rgba(130, 104, 0, 0.36);
-}
-
 .content_item-icons {
     font-size: 24px;
 }
 
 .dragged {
     opacity: 0.4;
+    transform: scale(0.98);
 }
+
+.dragged_over {
+    border: 2px dashed #666666;
+  }
