@@ -4,14 +4,15 @@ let list = [
   { id: 3, text: "Create", icons: "👩‍🎓 👊 🐥 🌟" }
 ];
 const listItemsWrap = document.getElementById("dropzone");
-let dragElem;
+let dragStart;
+let dragEnd;
 
 window.onload = function() {
-  list.forEach((el, index) => createElement(el, index));
+  list.forEach((el) => createElement(el));
   setCurrentListIndex(Array.from(listItemsWrap.children));
 };
 
-function createElement(itemToCreate, index) {
+function createElement(itemToCreate) {
   const listItem = document.createElement("div");
   const listItemInnersList = Object.keys(itemToCreate);
 
@@ -21,7 +22,8 @@ function createElement(itemToCreate, index) {
   listItemInnersList.forEach((el, index) => {
     const listItemText = document.createElement("span");
     listItemText.innerHTML = itemToCreate[el];
-    if (index === listItemInnersList.length - 1) {
+    listItemText.classList.add("content_item-inner");
+    if (el === "icons") {
       listItemText.classList.add("content_item-icons");
     }
     listItem.appendChild(listItemText);
@@ -34,52 +36,52 @@ listItemsWrap.addEventListener(
   function(event) {
     const target = event.target;
     if (target.hasAttribute("draggable")) {
-      dragElem = target;
+      dragStart = target;
       target.classList.add("dragged");
     }
-  },
-  false
+  }
 );
 
 listItemsWrap.addEventListener(
   "dragover",
   function(event) {
     event.preventDefault();
-  },
-  false
+  }
 );
 
 listItemsWrap.addEventListener(
   "drop",
   function(event) {
     event.preventDefault();
-    const target = event.target;
-    if (isInDragZone(dragElem, target)) {
-      getItemId(dragElem.id) > getItemId(target.id)
-        ? target.parentNode.insertBefore(dragElem, target)
-        : target.parentNode.insertBefore(dragElem, target.nextSibling);
+    dragEnd = event.target;
+    if (isInDragZone()) {
+      getItemId(dragStart.id) > getItemId(dragEnd.id)
+        ? dragEnd.parentNode.insertBefore(dragStart, dragEnd)
+        : dragEnd.parentNode.insertBefore(dragStart, dragEnd.nextSibling);
       const parentChildren = Array.from(listItemsWrap.children);
       sortCurrentDataList(parentChildren.map(el => getItemId(el.id)));
       setCurrentListIndex(parentChildren);
     }
-  },
-  false
+  }
 );
 
 listItemsWrap.addEventListener(
   "dragend",
   function(event) {
-    dragElem.classList.remove("dragged");
-    dragElem = undefined;
-  },
-  false
+    dragStart.classList.remove("dragged");
+    dragStart = undefined;
+    dragEnd = undefined;
+  }
 );
 
 function getItemId(el) {
   return el.match(/\d/).map(Number)[0];
 }
 
-function isInDragZone(dragStart, dragEnd) {
+function isInDragZone() {
+  if (dragEnd.classList.contains('content_item-inner')) {
+    dragEnd = dragEnd.parentNode;
+  }
   return dragEnd.parentNode === dragStart.parentNode;
 }
 
